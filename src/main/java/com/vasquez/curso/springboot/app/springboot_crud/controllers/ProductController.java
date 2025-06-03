@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.vasquez.curso.springboot.app.springboot_crud.entities.Product;
 import com.vasquez.curso.springboot.app.springboot_crud.services.ProductService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,20 +46,22 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<Product> create(@RequestBody Product product) {
+    public ResponseEntity<Product> create(@Valid @RequestBody Product product) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.save(product));
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Product> update(@PathVariable Long id, @RequestBody Product product) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.save(product));
+    public ResponseEntity<Product> update(@PathVariable Long id, @Valid @RequestBody Product product) {
+        Optional<Product> productOptional = service.update(id, product);
+        if (productOptional.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(productOptional.get());
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Product> delete(@PathVariable Long id) {
-        Product product = new Product();
-        product.setId(id);
-        Optional<Product> producOptional = service.delete(product);
+        Optional<Product> producOptional = service.delete(id);
         if (producOptional.isPresent()) {
             return ResponseEntity.ok(producOptional.orElseThrow());
         }
