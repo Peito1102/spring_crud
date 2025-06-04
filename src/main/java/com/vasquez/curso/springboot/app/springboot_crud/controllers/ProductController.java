@@ -1,14 +1,18 @@
 package com.vasquez.curso.springboot.app.springboot_crud.controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+//import com.vasquez.curso.springboot.app.springboot_crud.ProductValidation;
 import com.vasquez.curso.springboot.app.springboot_crud.entities.Product;
 import com.vasquez.curso.springboot.app.springboot_crud.services.ProductService;
 
@@ -30,6 +34,9 @@ public class ProductController {
     @Autowired
     private ProductService service;
 
+    //@Autowired
+    //private ProductValidation validation;
+
     @GetMapping("/list")
     public List<Product> list() {
         return service.findAll();
@@ -46,12 +53,20 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<Product> create(@Valid @RequestBody Product product) {
+    public ResponseEntity<?> create(@Valid @RequestBody Product product, BindingResult result) {
+        //validation.validate(product, result);
+        if (result.hasFieldErrors()) {
+            return validation(result);
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(service.save(product));
     }
-    
+
     @PutMapping("/{id}")
-    public ResponseEntity<Product> update(@PathVariable Long id, @Valid @RequestBody Product product) {
+    public ResponseEntity<?> update(@Valid @RequestBody Product product, BindingResult result, @PathVariable Long id) {
+        //validation.validate(product, result);
+        if (result.hasFieldErrors()) {
+            return validation(result);
+        }
         Optional<Product> productOptional = service.update(id, product);
         if (productOptional.isPresent()) {
             return ResponseEntity.status(HttpStatus.CREATED).body(productOptional.get());
@@ -67,6 +82,14 @@ public class ProductController {
         }
 
         return ResponseEntity.notFound().build();
+    }
+
+    private ResponseEntity<?> validation(BindingResult result) {
+        Map<String, String> errors = new HashMap<>();
+        result.getFieldErrors().forEach(e -> {
+            errors.put(e.getField(), "El campo " + e.getField() + " " + e.getDefaultMessage());
+        });
+        return ResponseEntity.badRequest().body(errors);
     }
 
 }

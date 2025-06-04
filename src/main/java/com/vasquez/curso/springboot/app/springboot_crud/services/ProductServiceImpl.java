@@ -43,6 +43,7 @@ public class ProductServiceImpl implements ProductService {
             p.setName(product.getName());
             p.setPrice(product.getPrice());
             p.setDescription(product.getDescription());
+            p.setSku(product.getSku());
 
             return Optional.of(repository.save(p));
         }
@@ -59,6 +60,10 @@ public class ProductServiceImpl implements ProductService {
         return productDb;
     }
 
-    
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existsBySku(String sku) {
+        return repository.existsBySku(sku);
+    }
 
 }
