@@ -1,6 +1,7 @@
 package com.vasquez.curso.springboot.app.springboot_crud.entities;
 
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
@@ -29,6 +31,8 @@ public class User {
     private String username;
     
     @NotBlank
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) //con este si puede trabajar normal
+    //@JsonIgnore //este ignora totalmente, tanto en la serializacion como en la deserealizacion
     private String password;
 
     @ManyToMany
@@ -39,6 +43,11 @@ public class User {
     private List<Role> roles;
 
     private boolean enabled;
+
+    @PrePersist
+    public void prePersist() {
+        enabled = true;
+    }
 
     @Transient
     private boolean admin;

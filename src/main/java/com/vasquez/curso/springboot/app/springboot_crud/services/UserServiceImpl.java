@@ -30,6 +30,7 @@ public class UserServiceImpl implements UserService{
     @Transactional(readOnly = true)
     public List<User> findAll() {
         List<User> lista = userRepository.findAll();
+        System.out.println(lista);
         lista.forEach(u -> u.getRoles().forEach(r -> System.out.println(r.getName() + " " + r.getId())));
         return lista;
     }
