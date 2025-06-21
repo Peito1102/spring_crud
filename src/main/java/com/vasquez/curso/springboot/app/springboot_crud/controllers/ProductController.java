@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,11 +39,13 @@ public class ProductController {
     //private ProductValidation validation;
 
     @GetMapping("/list")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     public List<Product> list() {
         return service.findAll();
     }
     
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     public ResponseEntity<Product> view(@PathVariable Long id) {
         Optional<Product> producOptional = service.findById(id);
         if (producOptional.isPresent()) {
@@ -53,6 +56,7 @@ public class ProductController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> create(@Valid @RequestBody Product product, BindingResult result) {
         //validation.validate(product, result);
         if (result.hasFieldErrors()) {
@@ -62,6 +66,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> update(@Valid @RequestBody Product product, BindingResult result, @PathVariable Long id) {
         //validation.validate(product, result);
         if (result.hasFieldErrors()) {
@@ -75,6 +80,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Product> delete(@PathVariable Long id) {
         Optional<Product> producOptional = service.delete(id);
         if (producOptional.isPresent()) {
