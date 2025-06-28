@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -66,7 +68,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
                 Collection<? extends GrantedAuthority> roles = authResult.getAuthorities();
 
-                Claims claims = Jwts.claims().add("authorities", new ObjectMapper().writeValueAsString(roles)).add("username", username).build();
+                List<String> rolesCadenas = roles.stream().map(rol -> rol.getAuthority()).collect(Collectors.toList());
+
+                Claims claims = Jwts.claims().add("authorities", rolesCadenas).build();
 
                 String token = Jwts.builder()
                 .subject(username)
